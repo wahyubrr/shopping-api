@@ -40,7 +40,7 @@ CREATE TABLE Products (
     Quantity int NOT NULL,
     Price float NOT NULL,
     Weight_Gram int NOT NULL,
-    Description varchar(300),
+    Description varchar(1000),
     PRIMARY KEY (Product_Id),
     FOREIGN KEY (Category_Id) REFERENCES Product_Category(Category_Id)
 );
