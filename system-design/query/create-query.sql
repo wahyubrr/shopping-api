@@ -8,17 +8,22 @@ CREATE TABLE Customers (
     City varchar(30) NOT NULL,
     Zip varchar(10) NOT NULL,
     Phone varchar(15) NOT NULL,
-    Password_Hash char(50) NOT NULL,
+    Password_Hash char(64) NOT NULL,
     Date_of_Birth date,
     PRIMARY KEY (Customer_Id)
 );
+ALTER TABLE Customers
+MODIFY COLUMN Password_Hash char(64) NOT NULL;
 CREATE TABLE Customer_Cart (
 	Cart_Id int NOT NULL AUTO_INCREMENT,
     Customer_Id int NOT NULL,
     Total float NOT NULL,
+    Completed bool NOT NULL,
     PRIMARY KEY (Cart_Id),
     FOREIGN KEY (Customer_Id) REFERENCES Customers(Customer_Id)
 );
+ALTER TABLE Customer_Cart
+ADD COLUMN Completed bool NOT NULL;
 CREATE TABLE Cart_Item (
 	Cart_Item_Id int NOT NULL AUTO_INCREMENT,
     Cart_Id int NOT NULL,
