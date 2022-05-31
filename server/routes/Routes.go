@@ -20,7 +20,12 @@ func StartController() {
 	r.HandleFunc("/api/product/{id}", controllers.GetProduct).Methods("GET")
 	r.HandleFunc("/api/category/{id}", controllers.GetCategory).Methods("GET")
 
-	// bonus features - CUD PRODUCTS
+	// CART Endpoints / Route Handlers
+	r.HandleFunc("/api/cart", controllers.GetCart).Methods("GET")
+	r.HandleFunc("/api/cart", controllers.AddToCart).Methods("PUT")
+	r.HandleFunc("/api/cart/{id}", controllers.DeleteFromCart).Methods("DELETE")
+
+	// bonus features - PRODUCTS - CUD PRODUCTS
 	r.HandleFunc("/api/product", controllers.AddProduct).Methods("POST")
 	// r.HandleFunc("/api/product/{id}", updateProduct).Methods("PUT")
 	// r.HandleFunc("/api/product/{id}", deleteProduct).Methods("DELETE")
@@ -29,6 +34,10 @@ func StartController() {
 	// r.HandleFunc("/api/category", addCategory).Methods("POST")
 	// r.HandleFunc("/api/category/{id}", updateCategory).Methods("PUT")
 	// r.HandleFunc("/api/product/{id}", deleteCategory).Methods("DELETE")
+
+	// CUSTOMERS Endpoints / Route Handlers
+	r.HandleFunc("/api/register", controllers.RegisterCustomer).Methods("POST")
+	r.HandleFunc("/api/login", controllers.LoginCustomer).Methods("POST")
 	
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
