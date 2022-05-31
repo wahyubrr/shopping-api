@@ -108,30 +108,6 @@ func AddToCart(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
-	// // call a method Next from result object
-	// var cart []Cart
-	// for result.Next() {
-	// 	var product_id, quantity, weight_gram, cart_quantity int
-	// 	var category_id, title, description string
-	// 	var price float32
-	// 	err = result.Scan(&product_id, &category_id, &title, &quantity, &price, &weight_gram, &description, &cart_quantity)
-	// 	if err != nil {
-	// 		panic(err.Error())
-	// 	}
-
-	// 	cart = append(cart, Cart{
-	// 		Cart_Product: Product{
-	// 			Product_Id:  product_id,
-	// 			Category_Id: category_id,
-	// 			Title:       title,
-	// 			Quantity:    quantity,
-	// 			Price:       price,
-	// 			Weight_Gram: weight_gram,
-	// 			Description: description,
-	// 		},
-	// 		Cart_Quantity: cart_quantity,
-	// 	})
-	// }
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
