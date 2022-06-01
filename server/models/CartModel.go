@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"strconv"
 
@@ -113,7 +112,6 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	} else { // increase total in cart if quantity is positive
 		query = "UPDATE Customer_Cart SET Total=(SELECT CC.Total + (P.Price * " + quantity + ") FROM (SELECT Total, Cart_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Price FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Cart_Id=" + cart_id + ")	WHERE Customer_Cart.Cart_Id=" + cart_id + ";"
 	}
-	fmt.Println(query)
 	result, err = db.Query(query)
 	if err != nil {
 		panic(err.Error())
@@ -165,7 +163,15 @@ func DeleteFromCart(customer_id string, product_id string) (result *sql.Rows, er
 	if err != nil {
 		panic(err.Error())
 	}
-	query := "DELETE FROM Cart_Item WHERE Product_Id=" +
+	query := "UPDATE Customer_Cart SET Total=(SELECT CC.Total - (P.Price * CI.Quantity) FROM (SELECT Total, Customer_Id FROM Customer_Cart) AS CC, (SELECT Price, Product_Id FROM Products) AS P, (SELECT Quantity, Product_Id FROM Cart_Item) AS CI WHERE CC.Customer_Id=" + customer_id + " AND P.Product_Id=" + product_id + " AND CI.Product_Id=" + product_id + ") WHERE Customer_Cart.Cart_Id=(SELECT CC.Cart_Id FROM (SELECT Cart_Id, Customer_Id FROM Customer_Cart) AS CC WHERE CC.Customer_Id=" + customer_id + ");"
+
+	result, err = db.Query(query)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	query = "DELETE FROM Cart_Item WHERE Product_Id=" +
 		product_id + " AND Cart_Id=(SELECT Cart_Id FROM Customer_Cart	WHERE Customer_Id=" +
 		customer_id + ");"
 
