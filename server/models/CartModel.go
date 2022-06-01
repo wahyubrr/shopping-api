@@ -101,6 +101,22 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	result.Scan(&cart_id)
 	// fmt.Println(cart_id)
 
+	// Update the cart Total in Customer_Cart table
+	// decrease Total in Cart if inputted quantity is negative
+	check_quantity, err := strconv.Atoi(quantity)
+	if err != nil {
+		panic(err.Error())
+	}
+	if check_quantity < 0 {
+		query = "UPDATE Customer_Cart SET Total=(SELECT CC.Total - (P.Price * " + quantity + ") FROM (SELECT Total, Cart_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Price FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Cart_Id=" + cart_id + ")	WHERE Customer_Cart.Cart_Id=" + cart_id + ";"
+	} else { // increase total in cart if quantity is positive
+		query = "UPDATE Customer_Cart SET Total=(SELECT CC.Total + (P.Price * " + quantity + ") FROM (SELECT Total, Cart_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Price FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Cart_Id=" + cart_id + ")	WHERE Customer_Cart.Cart_Id=" + cart_id + ";"
+	}
+	result, err = db.Query(query)
+	if err != nil {
+		panic(err.Error())
+	}
+
 	// ADDING AN ITEM
 	query = "SELECT Quantity FROM Cart_Item WHERE Cart_Id=" +
 		cart_id + " AND Product_Id=" +
@@ -127,13 +143,13 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	// cart_id + ", " + product_id + ", " + quantity + ")"
 	// add the new quantity with the old quantity
 	var new_quantity string
-	temp, _ := strconv.Atoi(quantity)
-	new_quantity = strconv.Itoa(temp + old_quantity)
+	inputted_quantity, _ := strconv.Atoi(quantity)
+	new_quantity = strconv.Itoa(inputted_quantity + old_quantity)
 
-	// fmt.Println(temp, old_quantity, new_quantity)
+	// fmt.Println(inputted_quantity, old_quantity, new_quantity)
 
+	// Update the item quantity in Cart_item table
 	query = "UPDATE Cart_Item SET Quantity=" + new_quantity + " WHERE Cart_Id=" + cart_id + " AND Product_Id=" + product_id
-
 	result, err = db.Query(query)
 	if err != nil {
 		panic(err.Error())
