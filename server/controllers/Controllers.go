@@ -2,8 +2,6 @@ package controllers
 
 import "github.com/golang-jwt/jwt/v4"
 
-var database_endpoint string = "admin:Password8996290@tcp(synapsis-database-dev.c8oupwmizbjb.ap-southeast-1.rds.amazonaws.com:3306)/shoppingapi"
-
 var jwtKey = []byte("Y3ljbGluZ2lzbXlob2JieXNpbmNlaXdhc2FraWQ=")
 
 // Product struct
@@ -32,14 +30,14 @@ type Customer struct {
 
 // a struct to read the email and password
 type Credentials struct {
-	Customer_Id		int			`json:"customer_id"`
-	Email 				string 	`json:"email"`
+	Customer_Id int    `json:"customer_id"`
+	Email       string `json:"email"`
 }
 
 // a struct that will be encoded to a JWT
 type Claims struct {
-	Customer_Id int			`json:"customer_id"`
-	Email				string	`json:"email"`
+	Customer_Id int    `json:"customer_id"`
+	Email       string `json:"email"`
 	jwt.StandardClaims
 }
 
@@ -56,6 +54,6 @@ type Cart struct {
 
 // a struct for putting an item to a customer's cart
 type InputCart struct {
-	Product_Id		int		`json:"product_id"`
-	Quantity			int		`json:"quantity"`
+	Product_Id int `json:"product_id"`
+	Quantity   int `json:"quantity"`
 }

@@ -1,7 +1,5 @@
 package models
 
-var database_endpoint string = "admin:Password8996290@tcp(synapsis-database-dev.c8oupwmizbjb.ap-southeast-1.rds.amazonaws.com:3306)/shoppingapi"
-
 // Product struct
 type Product struct {
 	Product_Id  int     `json:"product_id"`

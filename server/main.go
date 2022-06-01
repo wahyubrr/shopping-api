@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 
 	"github.com/wahyubrr/synapsis-backend-test/routes"
 )
-
-var database_endpoint string = "admin:Password8996290@tcp(synapsis-database-dev.c8oupwmizbjb.ap-southeast-1.rds.amazonaws.com:3306)/shoppingapi"
 
 // Product struct
 type Product struct {
@@ -24,7 +25,13 @@ type Product struct {
 }
 
 func main() {
-	db, err := sql.Open("mysql", database_endpoint)
+	// Load .env file
+	err := godotenv.Load("database-credentials.env")
+	if err != nil {
+		log.Fatalf("dotenv Error. Err: %s", err)
+	}
+
+	db, err := sql.Open("mysql", os.Getenv("DB_WRITER_INSTANCE"))
 	if err != nil {
 		panic(err.Error())
 	}

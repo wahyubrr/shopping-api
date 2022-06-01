@@ -2,16 +2,17 @@ package models
 
 import (
 	"database/sql"
+	"os"
 )
 
 func RegisterCustomer(customers Customer) (result *sql.Rows, err error) {
-	db, err := sql.Open("mysql", database_endpoint)
+	db, err := sql.Open("mysql", os.Getenv("DB_WRITER_INSTANCE"))
 	if err != nil {
 		panic(err.Error())
 	}
 
 	query := "SELECT COUNT(Email) FROM Customers WHERE Email='" +
-	customers.Email + "'"
+		customers.Email + "'"
 	result, err = db.Query(query)
 	var isNotAvailable int
 	result.Next()
@@ -32,12 +33,12 @@ func RegisterCustomer(customers Customer) (result *sql.Rows, err error) {
 		customers.Date_of_Birth + "')"
 
 	result, err = db.Query(query)
-	
+
 	return result, err
 }
 
 func LoginCustomer(customers Customer) (result *sql.Rows, err error) {
-	db, err := sql.Open("mysql", database_endpoint)
+	db, err := sql.Open("mysql", os.Getenv("DB_WRITER_INSTANCE"))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -45,8 +46,8 @@ func LoginCustomer(customers Customer) (result *sql.Rows, err error) {
 	query := "SELECT Customer_Id, Email FROM Customers WHERE " +
 		"Email='" + customers.Email + "' AND Password_Hash='" +
 		customers.Password_Hash + "'"
-		
+
 	result, err = db.Query(query)
-	
+
 	return result, err
 }
