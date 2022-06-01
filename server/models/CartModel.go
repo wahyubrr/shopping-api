@@ -141,3 +141,21 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 
 	return result, err
 }
+
+func DeleteFromCart(customer_id string, product_id string) (result *sql.Rows, err error) {
+	db, err := sql.Open("mysql", os.Getenv("DB_WRITER_INSTANCE"))
+	if err != nil {
+		panic(err.Error())
+	}
+	query := "DELETE FROM Cart_Item WHERE Product_Id=" +
+		product_id + " AND Cart_Id=(SELECT Cart_Id FROM Customer_Cart	WHERE Customer_Id=" +
+		customer_id + ");"
+
+	result, err = db.Query(query)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return result, err
+}

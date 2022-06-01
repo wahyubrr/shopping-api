@@ -14,7 +14,7 @@ import (
 func StartController() {
 	// Init Router
 	r := mux.NewRouter()
-	
+
 	// PRODUCTS Endpoints / Route Handlers
 	r.HandleFunc("/api/product", controllers.GetAllProducts).Methods("GET")
 	r.HandleFunc("/api/product/{id}", controllers.GetProduct).Methods("GET")
@@ -23,7 +23,7 @@ func StartController() {
 	// CART Endpoints / Route Handlers
 	r.HandleFunc("/api/cart", controllers.GetCart).Methods("GET")
 	r.HandleFunc("/api/cart", controllers.AddToCart).Methods("PUT")
-	r.HandleFunc("/api/cart/{id}", controllers.DeleteFromCart).Methods("DELETE")
+	r.HandleFunc("/api/cart", controllers.DeleteFromCart).Methods("DELETE")
 
 	// bonus features - PRODUCTS - CUD PRODUCTS
 	r.HandleFunc("/api/product", controllers.AddProduct).Methods("POST")
@@ -38,6 +38,6 @@ func StartController() {
 	// CUSTOMERS Endpoints / Route Handlers
 	r.HandleFunc("/api/register", controllers.RegisterCustomer).Methods("POST")
 	r.HandleFunc("/api/login", controllers.LoginCustomer).Methods("POST")
-	
+
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
