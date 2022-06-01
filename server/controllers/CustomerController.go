@@ -26,17 +26,18 @@ func RegisterCustomer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	
+
 	// hashing
 	hashed := sha256.Sum256([]byte(customers.Email + customers.Password_Hash))
 	customers.Password_Hash = hex.EncodeToString(hashed[:])
 
 	// create a database object which can be used to connect with database
-	result, err := models.RegisterCustomer(models.Customer(customers))	// MODELS
+	result, err := models.RegisterCustomer(models.Customer(customers)) // MODELS
 
 	// check if email is avaliable
 	var isNotAvailable int
 	result.Scan(&isNotAvailable)
+
 	if isNotAvailable == 1 {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotAcceptable)
@@ -76,7 +77,7 @@ func LoginCustomer(w http.ResponseWriter, r *http.Request) {
 	customers.Password_Hash = hex.EncodeToString(hashed[:])
 
 	// create a database object which can be used to connect with database
-	result, err := models.LoginCustomer(models.Customer(customers))	// MODELS
+	result, err := models.LoginCustomer(models.Customer(customers)) // MODELS
 
 	if err != nil {
 		panic(err.Error())
@@ -105,9 +106,9 @@ func LoginCustomer(w http.ResponseWriter, r *http.Request) {
 	result.Scan(&creds.Customer_Id, &creds.Email)
 
 	// create the JWT claims, which includes customer_id, email and expiry time
-	claims := &Claims {
+	claims := &Claims{
 		Customer_Id: creds.Customer_Id,
-		Email: creds.Email,
+		Email:       creds.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
