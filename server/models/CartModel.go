@@ -45,7 +45,7 @@ func GetCart(customer_id string) (result *sql.Rows, err error) {
 	result.Scan(&cart_id)
 
 	// search the founded cart_id in cart_item table
-	query = "SELECT Products.Product_Id, Products.Category_Id, Products.Title, Products.Quantity, Products.Price, Products.Weight_Gram, Products.Description, Cart_Item.Quantity AS Cart_Quantity FROM Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id WHERE Cart_Id=" + cart_id
+	query = "SELECT Products.Product_Id, Products.Category_Id, Products.Title, Products.Quantity, Products.Price, Products.Weight_Gram, Products.Description, Cart_Item.Quantity AS Cart_Quantity, Customer_Cart.Total AS Total FROM ((Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id) INNER JOIN Customer_Cart ON Cart_Item.Cart_Id=Customer_Cart.Cart_Id) WHERE Cart_Item.Cart_Id=" + cart_id
 	result, err = db.Query(query)
 	if err != nil {
 		panic(err.Error())

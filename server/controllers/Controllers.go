@@ -46,10 +46,16 @@ type Customer_Token struct {
 	Token string `json:"token"`
 }
 
-// a struct for displaying cart
-type Cart struct {
-	Cart_Product  Product `json:"cart_product"`
-	Cart_Quantity int     `json:"quantity"`
+// a struct for displaying completed cart
+type Complete_Cart struct {
+	Cart_Total   float32            `json:"total_price"`
+	Cart_Product []Cart_One_Product `json:"cart_product"`
+}
+
+// a struct for displaying a single product in cart
+type Cart_One_Product struct {
+	Cart_Quantity int     `json:"cart_quantity"`
+	Product       Product `json:"product"`
 }
 
 // a struct for putting an item to a customer's cart

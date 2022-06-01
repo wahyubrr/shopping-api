@@ -43,18 +43,20 @@ func GetCart(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	// call a method Next from result object
-	var cart []Cart
+	var cart_one_product []Cart_One_Product
+	var total float32
 	for result.Next() {
 		var product_id, quantity, weight_gram, cart_quantity int
 		var category_id, title, description string
 		var price float32
-		err = result.Scan(&product_id, &category_id, &title, &quantity, &price, &weight_gram, &description, &cart_quantity)
+		err = result.Scan(&product_id, &category_id, &title, &quantity, &price, &weight_gram, &description, &cart_quantity, &total)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		cart = append(cart, Cart{
-			Cart_Product: Product{
+		cart_one_product = append(cart_one_product, Cart_One_Product{
+			Cart_Quantity: cart_quantity,
+			Product: Product{
 				Product_Id:  product_id,
 				Category_Id: category_id,
 				Title:       title,
@@ -63,12 +65,16 @@ func GetCart(w http.ResponseWriter, r *http.Request) {
 				Weight_Gram: weight_gram,
 				Description: description,
 			},
-			Cart_Quantity: cart_quantity,
 		})
 	}
+	var completed_cart []Complete_Cart
+	completed_cart = append(completed_cart, Complete_Cart{
+		Cart_Total:   total,
+		Cart_Product: cart_one_product,
+	})
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(cart)
+	json.NewEncoder(w).Encode(completed_cart)
 }
 
 func AddToCart(w http.ResponseWriter, r *http.Request) {
