@@ -40,6 +40,32 @@ func Checkout(customer_id string, logistic string) (result *sql.Rows, err error)
 		return result, fmt.Errorf("You have an unpaid order, Complete it first")
 	}
 
+	// check if the quantity(stock) of product is enough
+	query = "SELECT Products.Quantity - Cart_Item.Quantity FROM Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id WHERE Cart_Item.Customer_Id=" + customer_id
+
+	result, err = db.Query(query)
+
+	for result.Next() {
+		var check int
+		err = result.Scan(&check)
+		if err != nil {
+			panic(err.Error())
+		}
+		// check if the quantity(stock) - asked quantity is negative
+		if check < 0 {
+			return result, fmt.Errorf("Our stock is not enough for one of your ordered item")
+		}
+	}
+
+	// substract the quantity of the products in Products Table
+	query = "UPDATE Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id SET Products.Quantity = Products.Quantity - Cart_Item.Quantity WHERE Customer_Id = " + customer_id
+
+	result, err = db.Query(query)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// insert into Order Tables
 	query = "INSERT INTO Orders (Customer_Id, Total, Weight_Gram, Order_Date, Logistic) SELECT Customers.Customer_Id, Customer_Cart.Total, Customer_Cart.Weight_Gram, NOW() AS Order_Date, '" + logistic + "' AS Logistic FROM Customers, Customer_Cart WHERE Customers.Customer_Id=" + customer_id + " AND Customer_Cart.Customer_Id=" + customer_id + ";"
 
 	result, err = db.Query(query)
