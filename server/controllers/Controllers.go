@@ -68,3 +68,14 @@ type InputCart struct {
 type InputCheckout struct {
 	Logistic string `json:"logistic"`
 }
+
+// Order struct
+type Orders struct {
+	Order_Id          int     `json:"order_id"`
+	Total             float32 `json:"total"`
+	Weight_Gram       int     `json:"total_weight"`
+	Order_Date        string  `json:"order_date"`
+	Logistic          string  `json:"logistic"`
+	Tracking_Number   string  `json:"tracking_number"`
+	Payment_Completed bool    `json:"payment_completed"`
+}
