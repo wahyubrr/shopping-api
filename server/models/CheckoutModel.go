@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -23,7 +24,23 @@ func Checkout(customer_id string, logistic string) (result *sql.Rows, err error)
 	// min, max := 1000000000, 9999999999
 	// tracking_number := strconv.Itoa(rand.Intn(max-min+1) + min)
 
-	query := "INSERT INTO Orders (Customer_Id, Total, Weight_Gram, Order_Date, Logistic) SELECT Customers.Customer_Id, Customer_Cart.Total, Customer_Cart.Weight_Gram, NOW() AS Order_Date, '" + logistic + "' AS Logistic FROM Customers, Customer_Cart WHERE Customers.Customer_Id=" + customer_id + " AND Customer_Cart.Customer_Id=" + customer_id + ";"
+	// check if this user already have an unfinished order
+	// if yes, then this user can't checkout again
+	// if no, then proceed to checkout
+	query := "SELECT COUNT(Payment_Completed) FROM Orders WHERE Customer_Id=" + customer_id + " AND Payment_Completed=0"
+	result, err = db.Query(query)
+	if err != nil {
+		panic(err.Error())
+	}
+	var haventPaid int
+	result.Next()
+	result.Scan(&haventPaid)
+
+	if haventPaid > 0 {
+		return result, fmt.Errorf("You have an unpaid order, Complete it first")
+	}
+
+	query = "INSERT INTO Orders (Customer_Id, Total, Weight_Gram, Order_Date, Logistic) SELECT Customers.Customer_Id, Customer_Cart.Total, Customer_Cart.Weight_Gram, NOW() AS Order_Date, '" + logistic + "' AS Logistic FROM Customers, Customer_Cart WHERE Customers.Customer_Id=" + customer_id + " AND Customer_Cart.Customer_Id=" + customer_id + ";"
 
 	result, err = db.Query(query)
 	if err != nil {

@@ -45,10 +45,11 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 
 	// call models.Getcart with decoded jwt token (customer_id)
 	result, err := models.Checkout(strconv.Itoa(claims.Customer_Id), payload.Logistic) // MODELS
-	if err != nil {
-		panic(err.Error())
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(err.Error())
+	} else {
+		json.NewEncoder(w).Encode(result)
+	}
 }
