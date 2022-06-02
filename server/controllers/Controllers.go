@@ -49,6 +49,7 @@ type Customer_Token struct {
 // a struct for displaying completed cart
 type Complete_Cart struct {
 	Cart_Total   float32            `json:"total_price"`
+	Cart_Weight  int                `json:"total_weight"`
 	Cart_Product []Cart_One_Product `json:"cart_product"`
 }
 

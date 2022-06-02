@@ -44,12 +44,13 @@ func GetCart(w http.ResponseWriter, r *http.Request) {
 	}
 	// call a method Next from result object
 	var cart_one_product []Cart_One_Product
-	var total float32
+	var total_price float32
+	var total_weight int
 	for result.Next() {
 		var product_id, quantity, weight_gram, cart_quantity int
 		var category_id, title, description string
 		var price float32
-		err = result.Scan(&product_id, &category_id, &title, &quantity, &price, &weight_gram, &description, &cart_quantity, &total)
+		err = result.Scan(&product_id, &category_id, &title, &quantity, &price, &weight_gram, &description, &cart_quantity, &total_price, &total_weight)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -69,7 +70,8 @@ func GetCart(w http.ResponseWriter, r *http.Request) {
 	}
 	var completed_cart []Complete_Cart
 	completed_cart = append(completed_cart, Complete_Cart{
-		Cart_Total:   total,
+		Cart_Total:   total_price,
+		Cart_Weight:  total_weight,
 		Cart_Product: cart_one_product,
 	})
 

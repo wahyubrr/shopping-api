@@ -37,7 +37,7 @@ func GetCart(customer_id string) (result *sql.Rows, err error) {
 	}
 
 	// search the customer_d in Cart_Item table
-	query = "SELECT Products.Product_Id, Products.Category_Id, Products.Title, Products.Quantity, Products.Price, Products.Weight_Gram, Products.Description, Cart_Item.Quantity AS Cart_Quantity, Customer_Cart.Total AS Total FROM ((Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id) INNER JOIN Customer_Cart ON Cart_Item.Customer_Id=Customer_Cart.Customer_Id) WHERE Cart_Item.Customer_Id=" + customer_id
+	query = "SELECT Products.Product_Id, Products.Category_Id, Products.Title, Products.Quantity, Products.Price, Products.Weight_Gram, Products.Description, Cart_Item.Quantity AS Cart_Quantity, Customer_Cart.Total AS Total, Customer_Cart.Weight_Gram FROM ((Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id) INNER JOIN Customer_Cart ON Cart_Item.Customer_Id=Customer_Cart.Customer_Id) WHERE Cart_Item.Customer_Id=" + customer_id
 	result, err = db.Query(query)
 	if err != nil {
 		panic(err.Error())
@@ -132,6 +132,8 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	if err != nil {
 		panic(err.Error())
 	}
+
+	// Update the cart's total weight
 
 	return result, err
 }
