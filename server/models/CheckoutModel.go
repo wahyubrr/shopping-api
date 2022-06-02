@@ -26,10 +26,7 @@ func Checkout(customer_id string, logistic string) (result *sql.Rows, err error)
 	min, max := 1000000000, 9999999999
 	tracking_number := strconv.Itoa(rand.Intn(max-min+1) + min)
 
-	// query weight - temporary
-	weight := strconv.Itoa(1200)
-
-	query := "INSERT INTO Orders (Customer_Id, Total, Weight_Gram, Order_Date, Logistic, Tracking_Number) SELECT Customers.Customer_Id, Customer_Cart.Total, " + weight + " AS Weight_Gram, NOW() AS Order_Date, '" + logistic + "' AS Logistic, '" + tracking_number + "' AS Tracking_Number FROM Customers, Customer_Cart WHERE Customers.Customer_Id=" + customer_id + " AND Customer_Cart.Customer_Id=" + customer_id + ";"
+	query := "INSERT INTO Orders (Customer_Id, Total, Weight_Gram, Order_Date, Logistic, Tracking_Number) SELECT Customers.Customer_Id, Customer_Cart.Total, Customer_Cart.Weight_Gram, NOW() AS Order_Date, '" + logistic + "' AS Logistic, '" + tracking_number + "' AS Tracking_Number FROM Customers, Customer_Cart WHERE Customers.Customer_Id=" + customer_id + " AND Customer_Cart.Customer_Id=" + customer_id + ";"
 
 	result, err = db.Query(query)
 	if err != nil {
