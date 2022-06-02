@@ -32,6 +32,9 @@ func StartController() {
 	// CHECKOUT Endpoints / Route Handlers
 	r.HandleFunc("/api/checkout", controllers.Checkout).Methods("POST")
 
+	// PAYMENT Endpoints / Route Handlers
+	r.HandleFunc("/api/payment", controllers.Payment).Methods("POST")
+
 	// bonus features - PRODUCTS - CUD PRODUCTS
 	r.HandleFunc("/api/product", controllers.AddProduct).Methods("POST")
 	// r.HandleFunc("/api/product/{id}", updateProduct).Methods("PUT")
