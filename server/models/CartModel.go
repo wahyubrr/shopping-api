@@ -9,43 +9,35 @@ import (
 )
 
 // GET ALL PRODUCTS IN A CUSTOMER'S CART
-// get customer_id, then use it for finding cart_id that is not yet completed
-// 	if cart not foound (0), then create one
-// 	if present, then get cart_id
-// then get all data from cart_item table with the cart_id
+// get customer_id from Customer_Cart
+// 	if Customer_Cart not found (0), then create one
+// 	if present, continue
+// then get all data from cart_item table with the customer_id
 func GetCart(customer_id string) (result *sql.Rows, err error) {
 	db, err := sql.Open("mysql", os.Getenv("DB_WRITER_INSTANCE"))
 	if err != nil {
 		panic(err.Error())
 	}
-	query := "SELECT Cart_Id FROM Customer_Cart WHERE Customer_Id=" +
-		customer_id + " AND Completed=0"
+	query := "SELECT Customer_Id FROM Customer_Cart WHERE Customer_Id=" +
+		customer_id
 
 	result, err = db.Query(query)
-	var cart_id string
-	// if no customer_cart is present for this customer
+
+	// if no customer_cart is present for this customer, create one
 	if result.Next() == false {
 		// fmt.Println("It is null :/")
 		// create customer_cart
-		query = "INSERT INTO Customer_Cart (Customer_Id, Total, Completed) VALUES (" +
-			customer_id + ", 0, 0)"
+		query = "INSERT INTO Customer_Cart (Customer_Id, Total) VALUES (" +
+			customer_id + ", 0)"
 		result, err = db.Query(query)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		// search the new cart_id of this customer
-		query = "SELECT Cart_Id FROM Customer_Cart WHERE Customer_Id=" + customer_id
-		result, err = db.Query(query)
-		if err != nil {
-			panic(err.Error())
-		}
-		result.Next()
 	}
-	result.Scan(&cart_id)
 
-	// search the founded cart_id in cart_item table
-	query = "SELECT Products.Product_Id, Products.Category_Id, Products.Title, Products.Quantity, Products.Price, Products.Weight_Gram, Products.Description, Cart_Item.Quantity AS Cart_Quantity, Customer_Cart.Total AS Total FROM ((Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id) INNER JOIN Customer_Cart ON Cart_Item.Cart_Id=Customer_Cart.Cart_Id) WHERE Cart_Item.Cart_Id=" + cart_id
+	// search the customer_d in Cart_Item table
+	query = "SELECT Products.Product_Id, Products.Category_Id, Products.Title, Products.Quantity, Products.Price, Products.Weight_Gram, Products.Description, Cart_Item.Quantity AS Cart_Quantity, Customer_Cart.Total AS Total FROM ((Products INNER JOIN Cart_Item ON Products.Product_Id=Cart_Item.Product_Id) INNER JOIN Customer_Cart ON Cart_Item.Customer_Id=Customer_Cart.Customer_Id) WHERE Cart_Item.Customer_Id=" + customer_id
 	result, err = db.Query(query)
 	if err != nil {
 		panic(err.Error())
@@ -57,8 +49,6 @@ func GetCart(customer_id string) (result *sql.Rows, err error) {
 // PUT A PRODUCT IN CUSTOMER'S CART
 // if customer_id == 7 && cart == 0 && completed == false (dont have cart) // check if customer_id 7 have a cart
 // 	create Customer_cart
-// else
-// 	get cart_id
 
 // // adding items
 // add item to cart
@@ -72,34 +62,24 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	if err != nil {
 		panic(err.Error())
 	}
-	// GET CART_ID
-	query := "SELECT Cart_Id FROM Customer_Cart WHERE Customer_Id=" +
-		customer_id + " AND Completed=0"
+	// Search Customer_Cart is available
+	query := "SELECT Customer_Id FROM Customer_Cart WHERE Customer_Id=" +
+		customer_id
 
 	result, err = db.Query(query)
-	var cart_id string
+
 	// if customer doesn't have a customer_cart, create one
 	if result.Next() == false {
 		// fmt.Println("It is null :/")
 		// create customer_cart
-		query = "INSERT INTO Customer_Cart (Customer_Id, Total, Completed) VALUES (" +
-			customer_id + ", 0, 0)"
+		query = "INSERT INTO Customer_Cart (Customer_Id, Total) VALUES (" +
+			customer_id + ", 0)"
 		result, err = db.Query(query)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		// search the new cart_id of this customer
-		query = "SELECT Cart_Id FROM Customer_Cart WHERE Customer_Id=" + customer_id
-		result, err = db.Query(query)
-		if err != nil {
-			panic(err.Error())
-		}
-		result.Next()
 	}
-	// cart_id is now available
-	result.Scan(&cart_id)
-	// fmt.Println(cart_id)
 
 	// Update the cart Total in Customer_Cart table
 	// decrease Total in Cart if inputted quantity is negative
@@ -108,9 +88,9 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 		panic(err.Error())
 	}
 	if check_quantity < 0 {
-		query = "UPDATE Customer_Cart SET Total=(SELECT CC.Total - (P.Price * " + quantity[1:] + ") FROM (SELECT Total, Cart_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Price FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Cart_Id=" + cart_id + ")	WHERE Customer_Cart.Cart_Id=" + cart_id + ";"
+		query = "UPDATE Customer_Cart SET Total=(SELECT CC.Total - (P.Price * " + quantity[1:] + ") FROM (SELECT Total, Customer_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Price FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Customer_Id=" + customer_id + ")	WHERE Customer_Cart.Customer_Id=" + customer_id + ";"
 	} else { // increase total in cart if quantity is positive
-		query = "UPDATE Customer_Cart SET Total=(SELECT CC.Total + (P.Price * " + quantity + ") FROM (SELECT Total, Cart_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Price FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Cart_Id=" + cart_id + ")	WHERE Customer_Cart.Cart_Id=" + cart_id + ";"
+		query = "UPDATE Customer_Cart SET Total=(SELECT CC.Total + (P.Price * " + quantity + ") FROM (SELECT Total, Customer_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Price FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Customer_Id=" + customer_id + ")	WHERE Customer_Cart.Customer_Id=" + customer_id + ";"
 	}
 	result, err = db.Query(query)
 	if err != nil {
@@ -118,8 +98,8 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	}
 
 	// ADDING AN ITEM
-	query = "SELECT Quantity FROM Cart_Item WHERE Cart_Id=" +
-		cart_id + " AND Product_Id=" +
+	query = "SELECT Quantity FROM Cart_Item WHERE Customer_Id=" +
+		customer_id + " AND Product_Id=" +
 		product_id
 	result, err = db.Query(query)
 	if err != nil {
@@ -128,8 +108,8 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	var old_quantity int
 	if result.Next() == false {
 		// create cart_item
-		query = "INSERT INTO Cart_Item (Cart_Id, Product_Id, Quantity) VALUES (" +
-			cart_id + ", " + product_id + ", " + quantity + ")"
+		query = "INSERT INTO Cart_Item (Customer_Id, Product_Id, Quantity) VALUES (" +
+			customer_id + ", " + product_id + ", " + quantity + ")"
 		result, err = db.Query(query)
 		if err != nil {
 			panic(err.Error())
@@ -139,8 +119,6 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	}
 	result.Scan(&old_quantity)
 
-	// query = "INSERT INTO Cart_Item (Cart_Id, Product_Id, Quantity) VALUES (" +
-	// cart_id + ", " + product_id + ", " + quantity + ")"
 	// add the new quantity with the old quantity
 	var new_quantity string
 	inputted_quantity, _ := strconv.Atoi(quantity)
@@ -149,7 +127,7 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 	// fmt.Println(inputted_quantity, old_quantity, new_quantity)
 
 	// Update the item quantity in Cart_item table
-	query = "UPDATE Cart_Item SET Quantity=" + new_quantity + " WHERE Cart_Id=" + cart_id + " AND Product_Id=" + product_id
+	query = "UPDATE Cart_Item SET Quantity=" + new_quantity + " WHERE Customer_Id=" + customer_id + " AND Product_Id=" + product_id
 	result, err = db.Query(query)
 	if err != nil {
 		panic(err.Error())
@@ -163,8 +141,7 @@ func DeleteFromCart(customer_id string, product_id string) (result *sql.Rows, er
 	if err != nil {
 		panic(err.Error())
 	}
-	query := "UPDATE Customer_Cart SET Total=(SELECT CC.Total - (P.Price * CI.Quantity) FROM (SELECT Total, Customer_Id FROM Customer_Cart) AS CC, (SELECT Price, Product_Id FROM Products) AS P, (SELECT Quantity, Product_Id FROM Cart_Item) AS CI WHERE CC.Customer_Id=" + customer_id + " AND P.Product_Id=" + product_id + " AND CI.Product_Id=" + product_id + ") WHERE Customer_Cart.Cart_Id=(SELECT CC.Cart_Id FROM (SELECT Cart_Id, Customer_Id FROM Customer_Cart) AS CC WHERE CC.Customer_Id=" + customer_id + ");"
-
+	query := "UPDATE Customer_Cart SET Total=(SELECT CC.Total - (P.Price * CI.Quantity) FROM (SELECT Total, Customer_Id FROM Customer_Cart) AS CC, (SELECT Price, Product_Id FROM Products) AS P, (SELECT Quantity, Product_Id FROM Cart_Item) AS CI WHERE CC.Customer_Id=" + customer_id + " AND P.Product_Id=" + product_id + " AND CI.Product_Id=" + product_id + ") WHERE Customer_Cart.Customer_Id=" + customer_id + ";"
 	result, err = db.Query(query)
 
 	if err != nil {
@@ -172,8 +149,8 @@ func DeleteFromCart(customer_id string, product_id string) (result *sql.Rows, er
 	}
 
 	query = "DELETE FROM Cart_Item WHERE Product_Id=" +
-		product_id + " AND Cart_Id=(SELECT Cart_Id FROM Customer_Cart	WHERE Customer_Id=" +
-		customer_id + ");"
+		product_id + " AND Customer_Id=" +
+		customer_id
 
 	result, err = db.Query(query)
 
