@@ -63,3 +63,7 @@ type InputCart struct {
 	Product_Id int `json:"product_id"`
 	Quantity   int `json:"quantity"`
 }
+
+type InputCheckout struct {
+	Logistic string `json:"logistic"`
+}

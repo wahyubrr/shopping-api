@@ -25,6 +25,13 @@ func StartController() {
 	r.HandleFunc("/api/cart", controllers.AddToCart).Methods("PUT")
 	r.HandleFunc("/api/cart", controllers.DeleteFromCart).Methods("DELETE")
 
+	// CUSTOMERS Endpoints / Route Handlers
+	r.HandleFunc("/api/register", controllers.RegisterCustomer).Methods("POST")
+	r.HandleFunc("/api/login", controllers.LoginCustomer).Methods("POST")
+
+	// CHECKOUT Endpoints / Route Handlers
+	r.HandleFunc("/api/checkout", controllers.Checkout).Methods("POST")
+
 	// bonus features - PRODUCTS - CUD PRODUCTS
 	r.HandleFunc("/api/product", controllers.AddProduct).Methods("POST")
 	// r.HandleFunc("/api/product/{id}", updateProduct).Methods("PUT")
@@ -34,10 +41,6 @@ func StartController() {
 	// r.HandleFunc("/api/category", addCategory).Methods("POST")
 	// r.HandleFunc("/api/category/{id}", updateCategory).Methods("PUT")
 	// r.HandleFunc("/api/product/{id}", deleteCategory).Methods("DELETE")
-
-	// CUSTOMERS Endpoints / Route Handlers
-	r.HandleFunc("/api/register", controllers.RegisterCustomer).Methods("POST")
-	r.HandleFunc("/api/login", controllers.LoginCustomer).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
