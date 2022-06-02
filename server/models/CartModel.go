@@ -97,6 +97,18 @@ func AddToCart(customer_id string, product_id string, quantity string) (result *
 		panic(err.Error())
 	}
 
+	// Update the cart total weight in Customer_Cart table
+	// decrease total weight in Cart if inputted quantity is negative
+	if check_quantity < 0 {
+		query = "UPDATE Customer_Cart SET Weight_Gram=(SELECT CC.Weight_Gram - (P.Weight_Gram * " + quantity[1:] + ") FROM (SELECT Weight_Gram, Customer_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Weight_Gram FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Customer_Id=" + customer_id + ") WHERE Customer_Cart.Customer_Id=" + customer_id
+	} else { // increase total in cart if quantity is positive
+		query = "UPDATE Customer_Cart SET Weight_Gram=(SELECT CC.Weight_Gram + (P.Weight_Gram * " + quantity + ") FROM (SELECT Weight_Gram, Customer_Id FROM Customer_Cart) AS CC, (SELECT Product_Id, Weight_Gram FROM Products) AS P WHERE P.Product_Id=" + product_id + " AND CC.Customer_Id=" + customer_id + ") WHERE Customer_Cart.Customer_Id=" + customer_id
+	}
+	result, err = db.Query(query)
+	if err != nil {
+		panic(err.Error())
+	}
+
 	// ADDING AN ITEM
 	query = "SELECT Quantity FROM Cart_Item WHERE Customer_Id=" +
 		customer_id + " AND Product_Id=" +
@@ -143,9 +155,15 @@ func DeleteFromCart(customer_id string, product_id string) (result *sql.Rows, er
 	if err != nil {
 		panic(err.Error())
 	}
+	// Update total price in cart to substract it
 	query := "UPDATE Customer_Cart SET Total=(SELECT CC.Total - (P.Price * CI.Quantity) FROM (SELECT Total, Customer_Id FROM Customer_Cart) AS CC, (SELECT Price, Product_Id FROM Products) AS P, (SELECT Quantity, Product_Id FROM Cart_Item) AS CI WHERE CC.Customer_Id=" + customer_id + " AND P.Product_Id=" + product_id + " AND CI.Product_Id=" + product_id + ") WHERE Customer_Cart.Customer_Id=" + customer_id + ";"
 	result, err = db.Query(query)
+	if err != nil {
+		panic(err.Error())
+	}
 
+	query = "UPDATE Customer_Cart SET Weight_Gram=(SELECT CC.Weight_Gram - (P.Weight_Gram * CI.Quantity) FROM (SELECT Weight_Gram, Customer_Id FROM Customer_Cart) AS CC, (SELECT Weight_Gram, Product_Id FROM Products) AS P, (SELECT Quantity, Product_Id FROM Cart_Item) AS CI	WHERE CC.Customer_Id=" + customer_id + " AND P.Product_Id=" + product_id + " AND CI.Product_Id=" + product_id + ") WHERE Customer_Cart.Customer_Id=" + customer_id + ";"
+	result, err = db.Query(query)
 	if err != nil {
 		panic(err.Error())
 	}
