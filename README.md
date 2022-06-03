@@ -8,7 +8,7 @@ An Online Store API created with Go-lang with features including:
 - Customer can checkout their cart to order all selected items
 - Customer then can pay for ther order (mockup)
 
-[Deployment Link](http://ec2-44-192-103-52.compute-1.amazonaws.com)
+ Example of the deployed application can be found here : [Deployment Link](http://ec2-44-192-103-52.compute-1.amazonaws.com) (Deployed on AWS ECS)
 
 ## API Documentatioin
 
