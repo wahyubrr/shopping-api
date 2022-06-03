@@ -1,3 +1,5 @@
+# ShoppingAPI
+
 An Online Store API created with Go-lang with features including:
 - Register and Login to an account
 - View all product, and filter a product based on the category
@@ -6,7 +8,9 @@ An Online Store API created with Go-lang with features including:
 - Customer can checkout their cart to order all selected items
 - Customer then can pay for ther order (mockup)
 
-# API Documentatioin
+[Deployment Link](http://ec2-44-192-103-52.compute-1.amazonaws.com)
+
+## API Documentatioin
 
 ## Open Endpoints
 
