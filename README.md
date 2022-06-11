@@ -1,6 +1,6 @@
 # ShoppingAPI
 
-An Online Store API created with Go-lang with features including:
+A Simple Online Store API created with Go-lang with features including:
 - Register and Login to an account
 - View all product, and filter a product based on the category
 - Customer can add and remove a product to/from their cart

@@ -18,7 +18,7 @@ Register a new account
   "zip": "[char 10 max]",
   "phone": "[char 15 max]",
   "password": "[char 64 max]",
-  "date_of_birth": [date]
+  "date_of_birth": "[date (yyyy-mm-dd)]"
 }
 ```
 
